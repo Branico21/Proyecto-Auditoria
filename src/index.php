@@ -82,12 +82,19 @@ function formatearRol($rol) {
                 <div class="user-avatar">
                     <?php echo strtoupper(substr($username, 0, 1)); ?>
                 </div>
-                <div class="user-details">
-                    <h2>¡Bienvenido/a, <?php echo htmlspecialchars($nombres); ?>!</h2>
-                    <span class="user-role <?php echo htmlspecialchars($rol); ?>">
-                        <?php echo htmlspecialchars(formatearRol($rol)); ?>
-                    </span>
-                </div>
+
+             <?php if ($rol === 'digitador'): ?>
+    <script>
+        window.location.href = "digitador.php";
+    </script>
+    <?php else: ?>
+        <div class="user-details">
+            <h2>¡Bienvenido/a, <?php echo htmlspecialchars($nombres); ?>!</h2>
+            <span class="user-role <?php echo htmlspecialchars($rol); ?>">
+                <?php echo htmlspecialchars(formatearRol($rol)); ?>
+            </span>
+        </div>
+    <?php endif; ?>
             </div>
             <a href="logout.php" class="logout-btn">Cerrar sesión</a>
         </div>
@@ -131,7 +138,7 @@ function formatearRol($rol) {
                 </div>
             <?php endif; ?>
             <div class="button-container">
-                <a href="cambiar_contrasena.php" class="btn-recover">Cambiar Contraseña</a>
+                <a href="digitador.php" class="btn-recover">Cambiar Contraseña</a>
             </div>
         </div>
 
