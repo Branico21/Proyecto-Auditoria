@@ -213,7 +213,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="btn-login">Registrarse</button>
+                    <button type="submit" class="btn-login" style="background-color: #ff5733; color: white;">Registrarse</button> <!-- Cambio de color -->
                 </div>
                 <div class="form-footer">
                     <a href="login.php">¿Ya tienes una cuenta? Iniciar sesión</a>
