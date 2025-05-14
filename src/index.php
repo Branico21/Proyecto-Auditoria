@@ -69,7 +69,7 @@ function formatearRol($rol) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Control</title>
     <!-- Aseguramos que el navegador no use la versión en caché -->
-    <link rel="stylesheet" href="styles.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="/Sastoque/src/styles.css?v=<?php echo time(); ?>">
 </head>
 <body>
     <div class="dashboard-container">
