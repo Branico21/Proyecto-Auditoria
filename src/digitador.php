@@ -2,8 +2,8 @@
 session_start();
 
 // archivo1.php
-require_once _DIR_ . '/config/config.php';  // Busca config.php dentro de la carpeta config
-require_once _DIR_ . '/../vendor/autoload.php';
+require_once __DIR__ . '/config/config.php';  // Busca config.php dentro de la carpeta config
+require_once __DIR__ . '/../vendor/autoload.php';
 
 try {
     $conn = new PDO("pgsql:host=$db_host;port=$db_port;dbname=$db_name", $db_user, $db_pass);
