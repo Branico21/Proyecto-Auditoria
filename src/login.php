@@ -3,7 +3,7 @@
 session_start();
 // archivo1.php
 require_once __DIR__ . '/config/config.php';  // Busca config.php dentro de la carpeta config
-require_once __DIR__ . '/../vendor/autoload.php';
+// require_once __DIR__ . '/../vendor/autoload.php';
 
 
 // Aquí puedes usar la variable $pdo para interactuar con la base de datos
