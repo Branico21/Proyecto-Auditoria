@@ -112,6 +112,7 @@ function formatearRol($rol) {
                         <li>Configuración del sistema</li>
                         <li>Reportes avanzados</li>
                         <li>Auditoría de actividades</li>
+                        <a href="mostrarinventario.php" class="btn-recover">Mostrar Inventario</a>
                     </ul>
                 </div>
             <?php elseif ($rol === 'digitador'): ?>

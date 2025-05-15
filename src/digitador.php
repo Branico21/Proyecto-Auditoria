@@ -60,16 +60,18 @@ if (isset($_POST['registrar_manual'])) {
     $id_persona = $_POST['id_persona'] ?? '';
 
     try {
-        $stmt = $pdo->prepare("INSERT INTO inventario (marca, modelo, serial, categoria, estado, id_persona) 
-                               VALUES (:marca, :modelo, :serial, :categoria, :estado, :id_persona)");
+        $stmt = $pdo->prepare("INSERT INTO inventario (marca, modelo, serial, categoria, estado, id_persona, responsable) 
+                               VALUES (:marca, :modelo, :serial, :categoria, :estado, :id_persona, :responsable)");
         $stmt->execute([
             ':marca' => $marca,
             ':modelo' => $modelo,
             ':serial' => $serial,
             ':categoria' => $categoria,
             ':estado' => $estado,
-            ':id_persona' => $id_persona
+            ':id_persona' => $id_persona,
+            ':responsable'=> $nombres . ' ' . $apellidos
         ]);
+        echo "<p style='color:green;'>Registro manual exitoso.</p>";
     } catch (PDOException $e) {
         echo "<p style='color:red;'>Error al registrar: " . $e->getMessage() . "</p>";
     }
@@ -90,15 +92,16 @@ if (isset($_POST['cargar_csv'])) {
             list($marca, $modelo, $serial, $categoria, $estado, $id_persona) = $datos;
 
             try {
-                $stmt = $pdo->prepare("INSERT INTO inventario (marca, modelo, serial, categoria, estado, id_persona) 
-                                       VALUES (:marca, :modelo, :serial, :categoria, :estado, :id_persona)");
+                $stmt = $pdo->prepare("INSERT INTO inventario (marca, modelo, serial, categoria, estado, id_persona, responsable) 
+                                       VALUES (:marca, :modelo, :serial, :categoria, :estado, :id_persona, :responsable)");
                 $stmt->execute([
                     ':marca' => $marca,
                     ':modelo' => $modelo,
                     ':serial' => $serial,
                     ':categoria' => $categoria,
                     ':estado' => $estado,
-                    ':id_persona' => $id_persona
+                    ':id_persona' => $id_persona,
+                    ':responsable'=> $nombres . ' ' . $apellidos
                 ]);
             } catch (PDOException $e) {
                 echo "<p style='color:red;'>Error en CSV: " . $e->getMessage() . "</p>";
@@ -118,6 +121,11 @@ if (isset($_POST['cargar_csv'])) {
     <meta charset="UTF-8">
     <title>Panel de Digitador</title>
     <link rel="stylesheet" href="styles.css?v=<?php echo time(); ?>">
+    <style>
+        .boton-separado {
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
 <div class="dashboard-container">
@@ -139,20 +147,21 @@ if (isset($_POST['cargar_csv'])) {
                 </option>
             <?php endforeach; ?>
         </select><br>
-        <input type="submit" name="registrar_manual" value="Registrar">
+        <input type="submit" name="registrar_manual" value="Registrar"><br>
     </form>
 
     <h3>Cargar desde CSV</h3>
     <form method="post" enctype="multipart/form-data">
         Selecciona archivo CSV: <input type="file" name="archivo_csv" accept=".csv" required><br>
-        <input type="submit" name="cargar_csv" value="Cargar CSV">
+        <input type="submit" name="cargar_csv" value="Cargar CSV"><br>
+        <br>
     </form>
 
-    <form method="get" action="mostrarinventario.php">
+    <form method="get" action="mostrarinventario.php" class="boton-separado">
         <button type="submit">Mostrar Inventario</button>
     </form>
 
-    <form method="post" action="logout.php">
+    <form method="post" action="logout.php" class="boton-separado">
         <button type="submit">Cerrar Sesión</button>
     </form>
 </div>
