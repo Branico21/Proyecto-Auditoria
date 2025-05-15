@@ -60,7 +60,7 @@ if (isset($_POST['registrar_manual'])) {
     $id_persona = $_POST['id_persona'] ?? '';
 
     try {
-        $stmt = $pdo->prepare("INSERT INTO inventario_tecnologico (marca, modelo, serial, categoria, estado, id_persona) 
+        $stmt = $pdo->prepare("INSERT INTO inventario (marca, modelo, serial, categoria, estado, id_persona) 
                                VALUES (:marca, :modelo, :serial, :categoria, :estado, :id_persona)");
         $stmt->execute([
             ':marca' => $marca,
@@ -91,7 +91,7 @@ if (isset($_POST['cargar_csv'])) {
             list($marca, $modelo, $serial, $categoria, $estado, $id_persona) = $datos;
 
             try {
-                $stmt = $pdo->prepare("INSERT INTO inventario_tecnologico (marca, modelo, serial, categoria, estado, id_persona) 
+                $stmt = $pdo->prepare("INSERT INTO inventario (marca, modelo, serial, categoria, estado, id_persona) 
                                        VALUES (:marca, :modelo, :serial, :categoria, :estado, :id_persona)");
                 $stmt->execute([
                     ':marca' => $marca,
