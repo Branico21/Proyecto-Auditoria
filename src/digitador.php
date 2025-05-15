@@ -70,7 +70,6 @@ if (isset($_POST['registrar_manual'])) {
             ':estado' => $estado,
             ':id_persona' => $id_persona
         ]);
-        echo "<p style='color:green;'>Registro manual exitoso.</p>";
     } catch (PDOException $e) {
         echo "<p style='color:red;'>Error al registrar: " . $e->getMessage() . "</p>";
     }
