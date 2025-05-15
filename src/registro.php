@@ -5,11 +5,6 @@ session_start();
 require_once __DIR__ . '/config/config.php';  // Busca config.php dentro de la carpeta config
 require_once __DIR__ . '/../vendor/autoload.php';
 
-
-// Aquí puedes usar la variable $pdo para interactuar con la base de datos
-
-
-
 // Array para almacenar errores
 $errors = [];
 $success = false;
@@ -28,58 +23,67 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $rol = $_POST["rol"] ?? '';
     $password = $_POST["password"] ?? '';
     $confirm_password = $_POST["confirm_password"] ?? '';
-    
+
     // Validar datos
     if (empty($nombres)) {
         $errors[] = "Los nombres son obligatorios.";
     }
-    
+
     if (empty($apellidos)) {
         $errors[] = "Los apellidos son obligatorios.";
     }
-    
+
     if (empty($email)) {
         $errors[] = "El correo electrónico es obligatorio.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = "El formato del correo electrónico no es válido.";
     }
-    
+
     if (empty($username)) {
         $errors[] = "El nombre de usuario es obligatorio.";
     } elseif (strlen($username) < 3) {
         $errors[] = "El nombre de usuario debe tener al menos 3 caracteres.";
     }
-    
+
     if (empty($tipo_documento)) {
         $errors[] = "Debe seleccionar un tipo de documento.";
     }
-    
+
     if (empty($documento)) {
         $errors[] = "El número de documento es obligatorio.";
     }
-    
+
     if (empty($telefono)) {
         $errors[] = "El teléfono es obligatorio.";
     }
-    
+
     if (empty($direccion)) {
         $errors[] = "La dirección es obligatoria.";
     }
-    
+
     if (empty($rol)) {
         $errors[] = "Debe seleccionar un rol.";
     }
-    
+
+    // Validar contraseña
     if (empty($password)) {
         $errors[] = "La contraseña es obligatoria.";
     } elseif (strlen($password) < 8) {
         $errors[] = "La contraseña debe tener al menos 8 caracteres.";
+    } elseif (!preg_match('/[A-Z]/', $password)) {
+        $errors[] = "La contraseña debe contener al menos una letra mayúscula.";
+    } elseif (!preg_match('/[a-z]/', $password)) {
+        $errors[] = "La contraseña debe contener al menos una letra minúscula.";
+    } elseif (!preg_match('/[0-9]/', $password)) {
+        $errors[] = "La contraseña debe contener al menos un número.";
+    } elseif (!preg_match('/[\W_]/', $password)) {
+        $errors[] = "La contraseña debe contener al menos un carácter especial.";
     }
-    
+
     if ($password !== $confirm_password) {
         $errors[] = "Las contraseñas no coinciden.";
     }
-    
+
     // Si no hay errores, proceder con el registro
     if (empty($errors)) {
         try {
@@ -92,29 +96,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Verificar si el usuario ya existe
                 $query = "SELECT id FROM usuarios WHERE username = $1 OR email = $2 OR (tipo_documento = $3 AND documento = $4)";
                 $resultado = pg_query_params($conexion, $query, array($username, $email, $tipo_documento, $documento));
-                
+
                 if (pg_num_rows($resultado) > 0) {
                     $errors[] = "El nombre de usuario, correo electrónico o documento ya está registrado.";
                 } else {
                     // Hashear la contraseña
                     $password_hash = password_hash($password, PASSWORD_DEFAULT);
-                    
+
                     // Insertar nuevo usuario
                     $query = "INSERT INTO usuarios (nombres, apellidos, email, username, tipo_documento, documento, telefono, direccion, rol, contrasena) 
                               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)";
                     $resultado = pg_query_params($conexion, $query, array(
-                        $nombres, 
-                        $apellidos, 
-                        $email, 
-                        $username, 
-                        $tipo_documento, 
-                        $documento, 
-                        $telefono, 
-                        $direccion, 
-                        $rol, 
+                        $nombres,
+                        $apellidos,
+                        $email,
+                        $username,
+                        $tipo_documento,
+                        $documento,
+                        $telefono,
+                        $direccion,
+                        $rol,
                         $password_hash
                     ));
-                    
+
                     if ($resultado) {
                         // Registro exitoso
                         $success = true;
@@ -122,7 +126,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $errors[] = "Error al registrar el usuario: " . pg_last_error($conexion);
                     }
                 }
-                
+
                 // Cerrar conexión
                 pg_close($conexion);
             }
@@ -139,7 +143,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Usuario</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/Sastoque/src/styles.css?v=<?php echo time(); ?>">
 </head>
 <body>
     <div class="login-container registro-container">
@@ -213,7 +217,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="btn-login">Registrarse</button>
+                    <button type="submit" class="btn-login" style="background-color: #ff5733; color: white;">Registrarse</button> <!-- Cambio de color -->
                 </div>
                 <div class="form-footer">
                     <a href="login.php">¿Ya tienes una cuenta? Iniciar sesión</a>

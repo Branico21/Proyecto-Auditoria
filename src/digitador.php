@@ -49,68 +49,6 @@ try {
 } catch (PDOException $e) {
     die("Error al cargar usuarios: " . $e->getMessage());
 }
-
-// Procesar registro manual (protegido contra inyección SQL)
-if (isset($_POST['registrar_manual'])) {
-    $marca = $_POST['marca'] ?? '';
-    $modelo = $_POST['modelo'] ?? '';
-    $serial = $_POST['serial'] ?? '';
-    $categoria = $_POST['categoria'] ?? '';
-    $estado = $_POST['estado'] ?? '';
-    $id_persona = $_POST['id_persona'] ?? '';
-
-    try {
-        $stmt = $pdo->prepare("INSERT INTO inventario (marca, modelo, serial, categoria, estado, id_persona) 
-                               VALUES (:marca, :modelo, :serial, :categoria, :estado, :id_persona)");
-        $stmt->execute([
-            ':marca' => $marca,
-            ':modelo' => $modelo,
-            ':serial' => $serial,
-            ':categoria' => $categoria,
-            ':estado' => $estado,
-            ':id_persona' => $id_persona
-        ]);
-        echo "<p style='color:green;'>Registro manual exitoso.</p>";
-    } catch (PDOException $e) {
-        echo "<p style='color:red;'>Error al registrar: " . $e->getMessage() . "</p>";
-    }
-}
-
-// Procesar carga desde CSV
-if (isset($_POST['cargar_csv'])) {
-    if (isset($_FILES['archivo_csv']['tmp_name'])) {
-        $archivo = fopen($_FILES['archivo_csv']['tmp_name'], 'r');
-        $primera_fila = true;
-
-        while (($datos = fgetcsv($archivo, 1000, ",")) !== false) {
-            if ($primera_fila) {
-                $primera_fila = false;
-                continue; // saltar encabezado
-            }
-
-            list($marca, $modelo, $serial, $categoria, $estado, $id_persona) = $datos;
-
-            try {
-                $stmt = $pdo->prepare("INSERT INTO inventario (marca, modelo, serial, categoria, estado, id_persona) 
-                                       VALUES (:marca, :modelo, :serial, :categoria, :estado, :id_persona)");
-                $stmt->execute([
-                    ':marca' => $marca,
-                    ':modelo' => $modelo,
-                    ':serial' => $serial,
-                    ':categoria' => $categoria,
-                    ':estado' => $estado,
-                    ':id_persona' => $id_persona
-                ]);
-            } catch (PDOException $e) {
-                echo "<p style='color:red;'>Error en CSV: " . $e->getMessage() . "</p>";
-            }
-        }
-        fclose($archivo);
-        echo "<p style='color:green;'>Carga desde CSV completada.</p>";
-    } else {
-        echo "<p style='color:red;'>No se seleccionó un archivo CSV.</p>";
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -119,43 +57,46 @@ if (isset($_POST['cargar_csv'])) {
     <meta charset="UTF-8">
     <title>Panel de Digitador</title>
     <link rel="stylesheet" href="styles.css?v=<?php echo time(); ?>">
+    <style>
+        .boton-separado {
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
 <div class="dashboard-container">
     <h2>¡Bienvenido, Digitador: <?= htmlspecialchars($nombres) ?>!</h2>
 
-    <h3>Registro Manual</h3>
-    <form method="post">
-        Marca: <input type="text" name="marca" required><br>
-        Modelo: <input type="text" name="modelo" required><br>
-        Serial: <input type="text" name="serial" required><br>
-        Categoría: <input type="text" name="categoria" required><br>
-        Estado: <input type="text" name="estado" required><br>
-        Persona Responsable:
-        <select name="id_persona" required>
-            <option value="">-- Selecciona un usuario --</option>
-            <?php foreach ($usuarios as $u): ?>
-                <option value="<?= htmlspecialchars($u['id']) ?>">
-                    <?= htmlspecialchars($u['id'] . ' - ' . $u['nombres'] . ' ' . $u['apellidos']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select><br>
-        <input type="submit" name="registrar_manual" value="Registrar">
-    </form>
+        <h2>Registro Manual</h2>
+        <form method="post">
+            Marca: <input type="text" name="marca" required><br>
+            Modelo: <input type="text" name="modelo" required><br>
+            Serial: <input type="text" name="serial" required><br>
+            Categoría: <input type="text" name="categoria" required><br>
+            Estado: <input type="text" name="estado" required><br>
+            
+            Persona Responsable:
+            <select name="id_persona" required>
+                <option value="">-- Selecciona un usuario --</option>
+                <?php foreach ($usuarios as $u): ?>
+                    <option value="<?= htmlspecialchars($u['id']) ?>">
+                        <?= htmlspecialchars($u['id'] . ' - ' . $u['nombres'] . ' ' . $u['apellidos']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select><br>
 
-    <h3>Cargar desde CSV</h3>
-    <form method="post" enctype="multipart/form-data">
-        Selecciona archivo CSV: <input type="file" name="archivo_csv" accept=".csv" required><br>
-        <input type="submit" name="cargar_csv" value="Cargar CSV">
-    </form>
+            <input type="submit" name="registrar_manual" value="Registrar">
+        </form>
 
-    <form method="get" action="mostrarinventario.php">
-        <button type="submit">Mostrar Inventario</button>
-    </form>
+        <h2>Cargar desde CSV</h2>
+        <form method="post" enctype="multipart/form-data">
+            Selecciona archivo CSV: <input type="file" name="archivo_csv" accept=".csv" required><br>
+            <input type="submit" name="cargar_csv" value="Cargar CSV">
+        </form>
 
-    <form method="post" action="logout.php">
-        <button type="submit">Cerrar Sesión</button>
-    </form>
-</div>
+        <form method="post" action="logout.php" style="text-align: center; margin-top: 20px;">
+            <button type="submit" class="logout-button">Cerrar Sesión</button>
+        </form>
+    </div>
 </body>
 </html>
