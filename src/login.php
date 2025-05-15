@@ -1,12 +1,20 @@
 <?php
 // Iniciar sesión
 session_start();
-require_once __DIR__ . '/config/config.php';
-require_once __DIR__ . '/../vendor/autoload.php';
+// archivo1.php
+require_once __DIR__ . '/config/config.php';  // Busca config.php dentro de la carpeta config
+//require_once __DIR__ . '/../vendor/autoload.php';
 
+
+// Aquí puedes usar la variable $pdo para interactuar con la base de datos
+
+
+// Inicializar array de errores
 $errors = [];
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+// Verificar si se ha enviado el formulario
+if ($_SERVER["REQUEST_METHOD"] == "POST") { // el server sirve para verificar si el formulario fue enviado
+    // Limpiar y normalizar el identificador (correo o username)
     $identifier = strtolower(trim($_POST["identifier"] ?? ''));
     $password = trim($_POST["password"] ?? '');
 
@@ -19,11 +27,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (empty($errors)) {
         try {
+            // Conectar a la base de datos PostgreSQL
             $conexion = pg_connect("host=$db_host port=$db_port dbname=$db_name user=$db_user password=$db_pass");
 
             if (!$conexion) {
                 $errors[] = "Error de conexión a la base de datos.";
             } else {
+                // Buscar usuario por email o username (insensible a mayúsculas y espacios)
                 $query = "
                     SELECT id, username, contrasena 
                     FROM usuarios 
@@ -35,6 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if ($resultado && pg_num_rows($resultado) > 0) {
                     $usuario = pg_fetch_assoc($resultado);
 
+                    // Verificar contraseña
                     if (password_verify($password, $usuario['contrasena'])) {
                         $_SESSION['user_id'] = $usuario['id'];
                         $_SESSION['username'] = $usuario['username'];
@@ -44,6 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $errors[] = "La contraseña es incorrecta.";
                     }
                 } else {
+                    // Tiempo constante para prevenir ataques de tiempo
                     password_verify($password, '$2y$10$1234567890123456789012uDq7gPybjP8shnKH0Gq5fT9mBtEJvHi');
                     $errors[] = "No se encontró una cuenta con este correo o usuario.";
                 }
@@ -63,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión</title>
-    <link rel="stylesheet" href="/Sastoque/src/styles.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="login-container">
@@ -80,21 +92,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <form action="login.php" method="POST">
             <div class="form-group">
                 <label for="identifier">Correo o Usuario:</label>
-                <input type="text" id="identifier" name="identifier" class="form-control" placeholder="Ingresa tu correo o usuario" required>
+                <input type="text" id="identifier" name="identifier" class="form-control" required>
             </div>
             <div class="form-group">
                 <label for="password">Contraseña:</label>
-                <input type="password" id="password" name="password" class="form-control" placeholder="Ingresa tu contraseña" required>
+                <input type="password" id="password" name="password" class="form-control" required>
             </div>
             <div class="form-group">
                 <button type="submit" class="btn-login">Iniciar Sesión</button>
             </div>
             <div class="form-footer">
-                <a href="recuperar_contrasena.php" class="link">¿Olvidaste tu contraseña?</a>
+                <a href="recuperar_contrasena.php">¿Olvidaste tu contraseña?</a>
+                <br>
                 <a href="registro.php" class="btn-register">Registrarse</a>
             </div>
         </form>
     </div>
 </body>
 </html>
-
