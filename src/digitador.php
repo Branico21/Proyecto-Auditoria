@@ -79,36 +79,67 @@ if (isset($_POST['registrar_manual'])) {
 
 // Procesar carga desde CSV
 if (isset($_POST['cargar_csv'])) {
-    if (isset($_FILES['archivo_csv']['tmp_name'])) {
+    if (!empty($_FILES['archivo_csv']['tmp_name'])) {
         $archivo = fopen($_FILES['archivo_csv']['tmp_name'], 'r');
         $primera_fila = true;
 
-        while (($datos = fgetcsv($archivo, 1000, ",")) !== false) {
+        while (($datos = fgetcsv($archivo, 1000, ",")) !== FALSE) {
             if ($primera_fila) {
                 $primera_fila = false;
-                continue; // saltar encabezado
+                continue; // Saltar encabezado
+            }
+
+            if (count($datos) != 6) {
+                continue; // Saltar si la fila no tiene 6 columnas
             }
 
             list($marca, $modelo, $serial, $categoria, $estado, $id_persona) = $datos;
 
-            try {
-                $stmt = $pdo->prepare("INSERT INTO inventario (marca, modelo, serial, categoria, estado, id_persona, responsable) 
-                                       VALUES (:marca, :modelo, :serial, :categoria, :estado, :id_persona, :responsable)");
-                $stmt->execute([
-                    ':marca' => $marca,
-                    ':modelo' => $modelo,
-                    ':serial' => $serial,
-                    ':categoria' => $categoria,
-                    ':estado' => $estado,
-                    ':id_persona' => $id_persona,
-                    ':responsable'=> $nombres . ' ' . $apellidos
-                ]);
-            } catch (PDOException $e) {
-                echo "<p style='color:red;'>Error en CSV: " . $e->getMessage() . "</p>";
+            // --------- Validaciones de Seguridad ---------
+            // Limpiar espacios
+            $marca = trim($marca);
+            $modelo = trim($modelo);
+            $serial = trim($serial);
+            $categoria = trim($categoria);
+            $estado = trim($estado);
+            $id_persona = trim($id_persona);
+
+            // Limitar longitud de cadenas (protección)
+            $marca = substr($marca, 0, 100);
+            $modelo = substr($modelo, 0, 100);
+            $serial = substr($serial, 0, 100);
+            $categoria = substr($categoria, 0, 50);
+            $estado = substr($estado, 0, 50);
+
+            // Validar que id_persona sea numérico (sin SQL injection)
+            if (!ctype_digit($id_persona)) {
+                continue; // Salta esta fila si no es número
             }
+
+            // Limpieza básica para evitar scripts maliciosos en campos de texto
+            $marca = htmlspecialchars(strip_tags($marca));
+            $modelo = htmlspecialchars(strip_tags($modelo));
+            $serial = htmlspecialchars(strip_tags($serial));
+            $categoria = htmlspecialchars(strip_tags($categoria));
+            $estado = htmlspecialchars(strip_tags($estado));
+
+            // --------- Inserción segura con PDO ---------
+            $sql = "INSERT INTO inventario (marca, modelo, serial, categoria, estado, id_persona)
+                    VALUES (:marca, :modelo, :serial, :categoria, :estado, :id_persona)";
+            $stmt = $pdo->prepare($sql);
+
+            $stmt->execute([
+                ':marca' => $marca,
+                ':modelo' => $modelo,
+                ':serial' => $serial,
+                ':categoria' => $categoria,
+                ':estado' => $estado,
+                ':id_persona' => $id_persona
+            ]);
         }
+
         fclose($archivo);
-        echo "<p style='color:green;'>Carga desde CSV completada.</p>";
+        echo "<p style='color:green;'>Carga desde CSV completada correctamente.</p>";
     } else {
         echo "<p style='color:red;'>No se seleccionó un archivo CSV.</p>";
     }
