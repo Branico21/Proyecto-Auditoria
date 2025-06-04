@@ -139,7 +139,7 @@ function formatearRol($rol) {
                 </div>
             <?php endif; ?>
             <div class="button-container">
-                <a href="digitador.php" class="btn-recover">Cambiar Contraseña</a>
+                <a href="cambiar_contrasena.php" class="btn-recover">Cambiar Contraseña</a>
             </div>
         </div>
 
